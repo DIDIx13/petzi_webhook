@@ -52,12 +52,6 @@ jobs:
             echo "SECRET=${{ secrets.PETZI_SECRET }}" >> $GITHUB_ENV
           fi
 
-      # TODO : Remove this step
-      - name: Debug Environment Variables
-        run: |
-          echo "URL: $URL"
-          echo "SECRET: $SECRET"
-
       - name: Run webhook simulator
         env:
           PETZI_SECRET: ${{ env.SECRET }}
