@@ -32,28 +32,20 @@ def make_header(body, secret):
     return headers
 
 def make_post_request(url, data, secret):
+    session = requests.Session()
     try:
-        response = requests.post(url, data=data.encode('utf-8'), headers=make_header(data, secret))
+        headers = make_header(data, secret)
+        response = session.post(url, data=data.encode('utf-8'), headers=headers)
         if response.status_code == 200:
             print(f"Request successful. Response: {response.text}")
         else:
             print(f"Request failed with status code {response.status_code}. Response: {response.text}")
     except Exception as e:
         print(f"An error occurred: {e}")
+    finally:
+        session.close()
 
-if __name__ == "__main__":
-    # Load environment variables from .env
-    load_dotenv()
-
-    # Create an argument parser
-    parser = argparse.ArgumentParser(description="HTTP POST Request with JSON Body")
-    parser.add_argument("url", type=str, help="URL to send the POST request to")
-    parser.add_argument("--secret", type=str, help="Secret shared between your server and Petzi simulator",
-                        default=os.getenv('PETZI_SECRET', "AEeyJhbGciOiJIUzUxMiIsImlzcyI6"))
-
-    # Parse arguments
-    args = parser.parse_args()
-
+def simulate_webhook(url, secret):
     # Simulated JSON data
     data = '''
     {
@@ -102,4 +94,4 @@ if __name__ == "__main__":
     data = json.dumps(data_dict, indent=4)
 
     # Make the POST request
-    make_post_request(args.url, data, args.secret)
+    make_post_request(url, data, secret)

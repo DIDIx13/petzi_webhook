@@ -1,40 +1,28 @@
-from flask import Flask, render_template, request, flash, redirect, url_for
-import subprocess
+from flask import Flask
+from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
 import os
 from dotenv import load_dotenv
 
-app = Flask(__name__)
-app.secret_key = os.urandom(24)  # Replace with a secure key in production
+db = SQLAlchemy()
+migrate = Migrate()
 
-# Load environment variables
-load_dotenv()
-print("Environment variables loaded.")
+def create_app():
+    app = Flask(__name__)
+    load_dotenv()
 
-@app.route('/', methods=['GET', 'POST'])
-def index():
-    if request.method == 'POST':
-        url = request.form.get('url')
-        secret = request.form.get('secret') or os.getenv('PETZI_SECRET', 'AEeyJhbGciOiJIUzUxMiIsImlzcyI6')
+    # Configuration
+    app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', os.urandom(24))
+    app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///petzi_webhook.db')
+    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-        if not url:
-            flash('Webhook URL is required!', 'danger')
-            return redirect(url_for('index'))
+    # Initialize extensions
+    db.init_app(app)
+    migrate.init_app(app, db)
 
-        try:
-            # Run the simulator script
-            result = subprocess.run(
-                ['python', 'petzi_simulator.py', url, '--secret', secret],
-                capture_output=True,
-                text=True,
-                check=True
-            )
-            flash(result.stdout, 'success')
-        except subprocess.CalledProcessError as e:
-            flash(e.stderr or 'An error occurred while running the simulator.', 'danger')
+    # Register blueprints or routes
+    with app.app_context():
+        from .routes import main
+        app.register_blueprint(main)
 
-        return redirect(url_for('index'))
-
-    return render_template('index.html')
-
-if __name__ == "__main__":
-    app.run(debug=True)
+    return app
