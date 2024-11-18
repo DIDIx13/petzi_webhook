@@ -88,3 +88,21 @@ Alternatively, you can manually build and run the Docker containers:
 ```bash
 docker-compose up --build
 ```
+
+## **Testing**
+
+1. Send a Webhook:
+> Use the application form to send a webhook to a test endpoint like Webhook.site.
+
+2. Verify Database Entries:
+> Connect to the PostgreSQL database to verify that the webhook data is stored correctly.
+
+## **Security Considerations**
+
+- Secret Management: Secrets are managed using environment variables and GitHub Secrets.
+- Signature Verification: Incoming webhook requests are verified using HMAC signatures to ensure authenticity.
+- Data Protection: Sensitive information is not exposed in logs or frontend.
+
+## **Contributing**
+
+Contributions are welcome! Please open an issue or submit a pull request for any improvements or bug fixes.
