@@ -26,7 +26,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.13'
+          python-version: '3.11'  # Use a supported version like 3.11 or 3.10
 
       - name: Cache pip
         uses: actions/cache@v4
@@ -51,6 +51,12 @@ jobs:
             echo "URL=${{ secrets.WEBHOOK_URL }}" >> $GITHUB_ENV
             echo "SECRET=${{ secrets.PETZI_SECRET }}" >> $GITHUB_ENV
           fi
+
+      # TODO : Rrmove this step
+      - name: Debug Environment Variables
+        run: |
+          echo "URL: $URL"
+          echo "SECRET: $SECRET" 
 
       - name: Run webhook simulator
         env:
