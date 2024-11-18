@@ -41,8 +41,19 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
+      - name: Set Webhook URL and Secret
+        id: vars
+        run: |
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            echo "URL=${{ github.event.inputs.url }}" >> $GITHUB_ENV
+            echo "SECRET=${{ github.event.inputs.secret }}" >> $GITHUB_ENV
+          elif [ "${{ github.event_name }}" == "push" ]; then
+            echo "URL=${{ secrets.WEBHOOK_URL }}" >> $GITHUB_ENV
+            echo "SECRET=${{ secrets.PETZI_SECRET }}" >> $GITHUB_ENV
+          fi
+
       - name: Run webhook simulator
         env:
-          PETZI_SECRET: ${{ github.event.inputs.secret }}
+          PETZI_SECRET: ${{ env.SECRET }}
         run: |
-          python petzi_simulator.py "${{ github.event.inputs.url }}" "${{ github.event.inputs.secret }}"
+          python petzi_simulator.py "${{ env.URL }}" "${{ env.SECRET }}"
