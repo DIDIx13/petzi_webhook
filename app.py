@@ -8,6 +8,7 @@ app.secret_key = os.urandom(24)  # Replace with a secure key in production
 
 # Load environment variables
 load_dotenv()
+print("Environment variables loaded.")
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
@@ -34,3 +35,6 @@ def index():
         return redirect(url_for('index'))
 
     return render_template('index.html')
+
+if __name__ == "__main__":
+    app.run(debug=True)
