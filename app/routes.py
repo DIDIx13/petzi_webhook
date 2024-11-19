@@ -30,18 +30,17 @@ def verify_signature(request, secret):
 def index():
     if request.method == 'POST':
         url = request.form.get('url')
-        secret = request.form.get('secret') or os.getenv('PETZI_SECRET', 'AEeyJhbGciOiJIUzUxMiIsImlzcyI6')
+        secret = request.form.get('secret') or os.getenv('PETZI_SECRET', 'default_secret')
 
         if not url:
             flash('Webhook URL is required!', 'danger')
             return redirect(url_for('main.index'))
 
         try:
-            # Simulate sending the webhook
             simulate_webhook(url, secret)
             flash('Webhook sent successfully!', 'success')
         except Exception as e:
-            flash(f'An error occurred: {e}', 'danger')
+            flash('Failed to send webhook.', 'danger')
 
         return redirect(url_for('main.index'))
 
