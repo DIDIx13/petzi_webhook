@@ -8,8 +8,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-and-deploy:
-
+  deploy:
     runs-on: ubuntu-latest
 
     steps:
@@ -33,16 +32,6 @@ jobs:
           username: ${{ vars.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Install Docker Compose Plugin
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y docker-compose-plugin
-
-      - name: Verify Docker and Docker Compose Installation
-        run: |
-          docker --version
-          docker compose version
-
       - name: Build and push Docker image
         uses: docker/build-push-action@v6
         with:
@@ -56,11 +45,3 @@ jobs:
         run: |
           rm -rf /tmp/.buildx-cache
           mv /tmp/.buildx-cache-new /tmp/.buildx-cache
-
-      - name: Run Docker Compose
-        run: |
-          docker compose up --build -d
-
-      - name: Shutdown Docker Compose
-        if: always()
-        run: docker compose down
