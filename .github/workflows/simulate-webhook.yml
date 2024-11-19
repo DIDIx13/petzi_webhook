@@ -39,7 +39,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          pip install -r app/requirements.txt
 
       - name: Set Webhook URL and Secret
         id: vars
@@ -56,4 +56,4 @@ jobs:
         env:
           PETZI_SECRET: ${{ env.SECRET }}
         run: |
-          python petzi_simulator.py "${{ env.URL }}" --secret "${{ env.SECRET }}"
+          python app/petzi_simulator.py "${{ env.URL }}" --secret "${{ env.SECRET }}"
