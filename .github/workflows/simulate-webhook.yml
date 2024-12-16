@@ -56,4 +56,4 @@ jobs:
         env:
           PETZI_SECRET: ${{ env.SECRET }}
         run: |
-          python app/petzi_simulator.py "${{ env.URL }}" --secret "${{ env.SECRET }}"
+          python app/petzi_simulator.py "${{ secrets.WEBHOOK_URL }}" --secret "${{ secrets.PETZI_SECRET }}"
