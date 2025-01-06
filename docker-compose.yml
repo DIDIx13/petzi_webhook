@@ -1,30 +1,29 @@
+version: '3.8'
+
 services:
-  web:
+  app:
     build: .
-    command: flask run --host=0.0.0.0
-    volumes:
-      - .:/app
+    container_name: petzi_webhook_app
+    restart: always
+    env_file:
+      - .env
     ports:
-      - "5000:5000"
-    environment:
-      - FLASK_APP=app
-      - FLASK_ENV=development
-      - DATABASE_URL=postgresql://postgres:postgres@db:5432/petzi_webhook
-      - PETZI_SECRET=${PETZI_SECRET}
-      - SECRET_KEY=${SECRET_KEY}
+      - "8000:8000"
     depends_on:
       - db
 
   db:
     image: postgres:17
+    container_name: petzi_postgres
+    restart: always
     environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DB=petzi_webhook
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: petzi_webhook
     ports:
       - "5432:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data/
+      - postgres_data:/var/lib/postgresql/data
 
 volumes:
   postgres_data:

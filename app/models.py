@@ -1,23 +1,27 @@
-from . import db
+from sqlalchemy import Column, Integer, String, DateTime, Float
+from sqlalchemy.orm import relationship
+from app.database import Base
 from datetime import datetime
 
-class Ticket(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    number = db.Column(db.String(50), unique=True, nullable=False)
-    type = db.Column(db.String(50), nullable=False)
-    title = db.Column(db.String(100), nullable=False)
-    category = db.Column(db.String(100), nullable=False)
-    event_id = db.Column(db.Integer, nullable=False)
-    event = db.Column(db.String(100), nullable=False)
-    cancellation_reason = db.Column(db.String(200), nullable=True)
-    generated_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
-    promoter = db.Column(db.String(100), nullable=False)
-    price_amount = db.Column(db.Float, nullable=False)
-    price_currency = db.Column(db.String(10), nullable=False)
-    buyer_role = db.Column(db.String(50), nullable=False)
-    buyer_first_name = db.Column(db.String(50), nullable=False)
-    buyer_last_name = db.Column(db.String(50), nullable=False)
-    buyer_postcode = db.Column(db.String(20), nullable=False)
+class Ticket(Base):
+    __tablename__ = "tickets"
+
+    id = Column(Integer, primary_key=True, index=True)
+    number = Column(String(50), unique=True, index=True, nullable=False)
+    type = Column(String(50), nullable=False)
+    title = Column(String(100), nullable=False)
+    category = Column(String(100), nullable=False)
+    event_id = Column(Integer, nullable=False)
+    event = Column(String(100), nullable=False)
+    cancellation_reason = Column(String(200), nullable=True)
+    generated_at = Column(DateTime, nullable=False, default=datetime.utcnow)
+    promoter = Column(String(100), nullable=False)
+    price_amount = Column(Float, nullable=False)
+    price_currency = Column(String(10), nullable=False)
+    buyer_role = Column(String(50), nullable=False)
+    buyer_first_name = Column(String(50), nullable=False)
+    buyer_last_name = Column(String(50), nullable=False)
+    buyer_postcode = Column(String(20), nullable=False)
 
     def __repr__(self):
         return f'<Ticket {self.number}>'
