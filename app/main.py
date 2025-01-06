@@ -139,7 +139,20 @@ async def receive_webhook(
     return JSONResponse(status_code=200, content={"message": "Webhook received and processed"})
 
 @app.get("/history", response_class=HTMLResponse)
-def get_history(request: Request, db: Session = Depends(get_db)):
-    # Récupérer les dernières 100 requêtes webhook
-    webhook_requests = db.query(models.WebhookRequest).order_by(models.WebhookRequest.timestamp.desc()).limit(100).all()
-    return templates.TemplateResponse("history.html", {"request": request, "requests": webhook_requests})
+def get_history(request: Request, page: int = 1, db: Session = Depends(get_db)):
+    per_page = 20
+    total = db.query(models.WebhookRequest).count()
+    total_pages = (total + per_page - 1) // per_page
+
+    webhook_requests = db.query(models.WebhookRequest)\
+        .order_by(models.WebhookRequest.timestamp.desc())\
+        .offset((page - 1) * per_page)\
+        .limit(per_page)\
+        .all()
+
+    return templates.TemplateResponse("history.html", {
+        "request": request, 
+        "requests": webhook_requests,
+        "page": page,
+        "total_pages": total_pages
+    })
