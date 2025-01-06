@@ -18,12 +18,6 @@
             border-radius: 8px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
-        pre {
-            white-space: pre-wrap; /* Permet de s'adapter à la largeur de la cellule */
-            word-wrap: break-word;
-            max-width: 300px;
-            overflow-wrap: break-word;
-        }
         tr.clickable-row {
             cursor: pointer;
         }
@@ -90,7 +84,10 @@
                         <th>ID</th>
                         <th>Timestamp</th>
                         <th>HTTP Status</th>
-                        <th>Payload</th>
+                        <th>Prénom</th>
+                        <th>Nom</th>
+                        <th>Événement</th>
+                        <th>Montant (CHF)</th>
                         <th>Message d'Erreur</th>
                     </tr>
                 </thead>
@@ -114,7 +111,10 @@
                                 </span>
                             {% endif %}
                         </td>
-                        <td><pre>{{ request.payload }}</pre></td>
+                        <td>{{ request.buyer_first_name or "N/A" }}</td>
+                        <td>{{ request.buyer_last_name or "N/A" }}</td>
+                        <td>{{ request.event_name or "N/A" }}</td>
+                        <td>{{ request.price_amount or "N/A" }}</td>
                         <td>
                             {% if request.error_message %}
                                 <div class="alert alert-warning alert-dismissible fade show p-2 m-0" role="alert">

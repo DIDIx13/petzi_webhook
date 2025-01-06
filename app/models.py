@@ -34,6 +34,11 @@ class WebhookRequest(Base):
     payload = Column(Text, nullable=False)
     http_status = Column(Integer, nullable=False)
     error_message = Column(Text, nullable=True)
+    
+    buyer_first_name = Column(String(50), nullable=True)
+    buyer_last_name = Column(String(50), nullable=True)
+    event_name = Column(String(100), nullable=True)
+    price_amount = Column(Float, nullable=True)
 
     def __repr__(self):
         return f'<WebhookRequest {self.id} - Status {self.http_status}>'

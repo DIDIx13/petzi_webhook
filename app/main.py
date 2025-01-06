@@ -128,11 +128,24 @@ async def receive_webhook(
     db.commit()
     db.refresh(ticket)
 
-    # Enregistrer la requête avec un statut 200
+    # Extraire les champs spécifiques pour WebhookRequest
+    try:
+        buyer_first_name = buyer_data["firstName"]
+        buyer_last_name = buyer_data["lastName"]
+        event_name = ticket_data["event"]
+        price_amount = float(ticket_data["price"]["amount"])
+    except KeyError:
+        buyer_first_name = buyer_last_name = event_name = price_amount = None
+
+    # Enregistrer la requête avec un statut 200 et les champs spécifiques
     webhook_request = models.WebhookRequest(
         payload=body_str,
         http_status=200,
-        error_message=None
+        error_message=None,
+        buyer_first_name=buyer_first_name,
+        buyer_last_name=buyer_last_name,
+        event_name=event_name,
+        price_amount=price_amount
     )
     db.add(webhook_request)
     db.commit()

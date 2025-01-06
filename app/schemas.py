@@ -40,14 +40,17 @@ class Buyer(BaseModel):
 
 class WebhookPayload(BaseModel):
     event: str
-    details: dict  # Nous allons extraire les détails manuellement dans main.py
+    details: dict  # Extraction manuelle dans main.py
 
 class WebhookRequestDisplay(BaseModel):
     id: int
     timestamp: datetime
-    payload: str
     http_status: int
     error_message: Optional[str] = None
+    buyer_first_name: Optional[str] = None
+    buyer_last_name: Optional[str] = None
+    event_name: Optional[str] = None
+    price_amount: Optional[float] = None
 
     class Config:
         orm_mode = True

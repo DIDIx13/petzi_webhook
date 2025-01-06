@@ -85,6 +85,18 @@
                 {% endif %}
             </div>
             <div class="mb-3">
+                <strong>Prénom :</strong> {{ webhook_request.buyer_first_name or "N/A" }}
+            </div>
+            <div class="mb-3">
+                <strong>Nom :</strong> {{ webhook_request.buyer_last_name or "N/A" }}
+            </div>
+            <div class="mb-3">
+                <strong>Événement :</strong> {{ webhook_request.event_name or "N/A" }}
+            </div>
+            <div class="mb-3">
+                <strong>Montant (CHF) :</strong> {{ webhook_request.price_amount or "N/A" }}
+            </div>
+            <div class="mb-3">
                 <strong>Payload :</strong>
                 <pre>{{ payload | tojson(indent=4) }}</pre>
             </div>
