@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <title>Détail de la Requête Webhook</title>
     <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Font Awesome pour les icônes -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
@@ -28,25 +28,6 @@
     </style>
 </head>
 <body>
-    <!-- Barre de Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="#"><i class="fas fa-paw"></i> Petzi Webhook</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" 
-                    aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="/history"><i class="fas fa-history"></i> Historique</a>
-                    </li>
-                    <!-- Ajouter d'autres liens si nécessaire -->
-                </ul>
-            </div>
-        </div>
-    </nav>
-
     <div class="container">
         <div class="detail-container">
             <h2 class="mb-4"><i class="fas fa-info-circle"></i> Détail de la Requête Webhook #{{ webhook_request.id }}</h2>
@@ -105,6 +86,6 @@
     </div>
     
     <!-- Bootstrap JS et dépendances -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
