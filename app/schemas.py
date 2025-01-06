@@ -53,7 +53,7 @@ class WebhookRequestDisplay(BaseModel):
     price_amount: Optional[float] = None
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 class WebhookRequestDetail(BaseModel):
     id: int
@@ -63,4 +63,4 @@ class WebhookRequestDetail(BaseModel):
     payload: dict
 
     class Config:
-        orm_mode = True
+        from_attributes = True
