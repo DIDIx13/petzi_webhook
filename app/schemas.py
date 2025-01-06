@@ -51,3 +51,13 @@ class WebhookRequestDisplay(BaseModel):
 
     class Config:
         orm_mode = True
+
+class WebhookRequestDetail(BaseModel):
+    id: int
+    timestamp: datetime
+    http_status: int
+    error_message: Optional[str] = None
+    payload: dict
+
+    class Config:
+        orm_mode = True

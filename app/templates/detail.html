@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Détail de la Requête Webhook</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome pour les icônes -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            padding-top: 60px; /* Espace pour la navbar */
+            background-color: #f8f9fa;
+        }
+        .detail-container {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        pre {
+            white-space: pre-wrap; /* Permet de s'adapter à la largeur de la cellule */
+            word-wrap: break-word;
+            background-color: #f1f1f1;
+            padding: 10px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Barre de Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#"><i class="fas fa-paw"></i> Petzi Webhook</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" 
+                    aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/history"><i class="fas fa-history"></i> Historique</a>
+                    </li>
+                    <!-- Ajouter d'autres liens si nécessaire -->
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="detail-container">
+            <h2 class="mb-4"><i class="fas fa-info-circle"></i> Détail de la Requête Webhook #{{ webhook_request.id }}</h2>
+            
+            <div class="mb-3">
+                <strong>ID :</strong> {{ webhook_request.id }}
+            </div>
+            <div class="mb-3">
+                <strong>Timestamp :</strong> {{ webhook_request.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}
+            </div>
+            <div class="mb-3">
+                <strong>Statut HTTP :</strong>
+                {% if webhook_request.http_status == 200 %}
+                    <span class="badge bg-success">
+                        <i class="fas fa-check-circle"></i> {{ webhook_request.http_status }}
+                    </span>
+                {% elif webhook_request.http_status == 400 %}
+                    <span class="badge bg-warning text-dark">
+                        <i class="fas fa-exclamation-circle"></i> {{ webhook_request.http_status }}
+                    </span>
+                {% else %}
+                    <span class="badge bg-danger">
+                        <i class="fas fa-exclamation-circle"></i> {{ webhook_request.http_status }}
+                    </span>
+                {% endif %}
+            </div>
+            <div class="mb-3">
+                <strong>Message d'Erreur :</strong>
+                {% if webhook_request.error_message %}
+                    <div class="alert alert-warning alert-dismissible fade show p-2 m-0" role="alert">
+                        <i class="fas fa-exclamation-triangle"></i> {{ webhook_request.error_message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fermer"></button>
+                    </div>
+                {% else %}
+                    <span class="text-success">N/A</span>
+                {% endif %}
+            </div>
+            <div class="mb-3">
+                <strong>Payload :</strong>
+                <pre>{{ payload | tojson(indent=4) }}</pre>
+            </div>
+            <a href="/history" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Retour à l'Historique</a>
+        </div>
+    </div>
+    
+    <!-- Bootstrap JS et dépendances -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Header, HTTPException, Request, Depends
+from fastapi import FastAPI, Header, HTTPException, Request, Depends, Query
 from fastapi.responses import JSONResponse, HTMLResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
@@ -7,7 +7,8 @@ import hashlib
 import json
 from sqlalchemy.orm import Session
 from app import models, schemas, database, utils
-from typing import Optional
+from typing import Optional, List
+from datetime import datetime
 
 app = FastAPI()
 
@@ -139,13 +140,38 @@ async def receive_webhook(
     return JSONResponse(status_code=200, content={"message": "Webhook received and processed"})
 
 @app.get("/history", response_class=HTMLResponse)
-def get_history(request: Request, page: int = 1, db: Session = Depends(get_db)):
+def get_history(
+    request: Request,
+    page: int = 1,
+    http_status: Optional[int] = Query(None, description="Filtrer par statut HTTP"),
+    start_date: Optional[str] = Query(None, description="Date de début au format YYYY-MM-DD"),
+    end_date: Optional[str] = Query(None, description="Date de fin au format YYYY-MM-DD"),
+    db: Session = Depends(get_db)
+):
     per_page = 20
-    total = db.query(models.WebhookRequest).count()
+
+    query = db.query(models.WebhookRequest)
+
+    # Appliquer les filtres si fournis
+    if http_status:
+        query = query.filter(models.WebhookRequest.http_status == http_status)
+    if start_date:
+        try:
+            start_datetime = datetime.strptime(start_date, '%Y-%m-%d')
+            query = query.filter(models.WebhookRequest.timestamp >= start_datetime)
+        except ValueError:
+            pass  # Ignorer le filtre si la date est invalide
+    if end_date:
+        try:
+            end_datetime = datetime.strptime(end_date, '%Y-%m-%d')
+            query = query.filter(models.WebhookRequest.timestamp <= end_datetime)
+        except ValueError:
+            pass  # Ignorer le filtre si la date est invalide
+
+    total = query.count()
     total_pages = (total + per_page - 1) // per_page
 
-    webhook_requests = db.query(models.WebhookRequest)\
-        .order_by(models.WebhookRequest.timestamp.desc())\
+    webhook_requests = query.order_by(models.WebhookRequest.timestamp.desc())\
         .offset((page - 1) * per_page)\
         .limit(per_page)\
         .all()
@@ -154,5 +180,25 @@ def get_history(request: Request, page: int = 1, db: Session = Depends(get_db)):
         "request": request, 
         "requests": webhook_requests,
         "page": page,
-        "total_pages": total_pages
+        "total_pages": total_pages,
+        "http_status": http_status,
+        "start_date": start_date if start_date else "",
+        "end_date": end_date if end_date else ""
+    })
+
+@app.get("/history/{request_id}", response_class=HTMLResponse)
+def get_request_detail(request: Request, request_id: int, db: Session = Depends(get_db)):
+    webhook_request = db.query(models.WebhookRequest).filter(models.WebhookRequest.id == request_id).first()
+    if not webhook_request:
+        raise HTTPException(status_code=404, detail="Requête webhook non trouvée")
+    
+    try:
+        payload = json.loads(webhook_request.payload)
+    except json.JSONDecodeError:
+        payload = {"error": "Payload non valide"}
+
+    return templates.TemplateResponse("detail.html", {
+        "request": request,
+        "webhook_request": webhook_request,
+        "payload": payload
     })
