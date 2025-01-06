@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, DateTime, Float
+from sqlalchemy import Column, Integer, String, DateTime, Float, Text
 from sqlalchemy.orm import relationship
 from app.database import Base
 from datetime import datetime
@@ -25,3 +25,15 @@ class Ticket(Base):
 
     def __repr__(self):
         return f'<Ticket {self.number}>'
+
+class WebhookRequest(Base):
+    __tablename__ = "webhook_requests"
+
+    id = Column(Integer, primary_key=True, index=True)
+    timestamp = Column(DateTime, default=datetime.utcnow, nullable=False)
+    payload = Column(Text, nullable=False)
+    http_status = Column(Integer, nullable=False)
+    error_message = Column(Text, nullable=True)
+
+    def __repr__(self):
+        return f'<WebhookRequest {self.id} - Status {self.http_status}>'
