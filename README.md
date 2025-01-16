@@ -53,7 +53,7 @@ This application simulates and handles Petzi webhooks. It verifies the authentic
 
 5. **Access the Application:**
 
-    Open [http://localhost:8000](http://localhost:8000) in your browser.
+    Open [http://localhost:8000/history](http://localhost:8000/history) in your browser.
 
 ## **Usage**
 
