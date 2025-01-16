@@ -1,7 +1,6 @@
-Flask
-Flask-SQLAlchemy
-Flask-Migrate
-python-dotenv
-requests
+fastapi
+uvicorn[standard]
+sqlalchemy
 psycopg2-binary
-gunicorn
+python-dotenv
+jinja2

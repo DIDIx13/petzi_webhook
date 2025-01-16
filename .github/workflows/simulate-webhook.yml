@@ -7,11 +7,11 @@ on:
   workflow_dispatch:
     inputs:
       url:
-        description: 'URL of the Webhook'
+        description: 'URL du Webhook'
         required: true
         type: string
       secret:
-        description: 'Shared Secret'
+        description: 'Secret partagé'
         required: false
         default: 'AEeyJhbGciOiJIUzUxMiIsImlzcyI6'
 
@@ -55,5 +55,6 @@ jobs:
       - name: Run webhook simulator
         env:
           PETZI_SECRET: ${{ env.SECRET }}
+          WEBHOOK_URL: ${{ env.URL }}
         run: |
-            python app/petzi_simulator.py "${{ secrets.WEBHOOK_URL }}" "${{ secrets.PETZI_SECRET }}"
+          python app/petzi_simulator.py "${WEBHOOK_URL}" "${PETZI_SECRET}"

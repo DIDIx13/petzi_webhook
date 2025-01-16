@@ -1,23 +1,20 @@
-# Use an official Python runtime as a parent image
+# Utiliser l'image Python 3.13-slim officielle
 FROM python:3.13-slim
 
-# Set environment variables
-ENV PYTHONDONTWRITEBYTECODE 1
-ENV PYTHONUNBUFFERED 1
-
-# Set work directory
+# Définir le répertoire de travail
 WORKDIR /app
 
-# Install dependencies
+# Copier les fichiers de dépendances
 COPY requirements.txt .
-RUN pip install --upgrade pip
-RUN pip install -r requirements.txt
 
-# Copy project
-COPY . .
+# Installer les dépendances
+RUN pip install --no-cache-dir -r requirements.txt
 
-# Expose port
-EXPOSE 5000
+# Copier le code de l'application
+COPY ./app ./app
 
-# Run the application
-CMD ["flask", "run", "--host=0.0.0.0"]
+# Exposer le port
+EXPOSE 8000
+
+# Commande pour démarrer l'application
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
