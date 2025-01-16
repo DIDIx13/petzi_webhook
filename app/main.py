@@ -194,7 +194,8 @@ def get_history(
     sales_data = db.query(
         func.date_trunc('day', models.WebhookRequest.timestamp).label('day'),
         func.count(models.WebhookRequest.id).label('ticket_count')
-    ).group_by('day').order_by('day').all()
+    ).filter(models.WebhookRequest.http_status == 200)\
+    .group_by('day').order_by('day').all()
 
     days = [day.strftime('%Y-%m-%d') for day, count in sales_data]
     counts = [count for day, count in sales_data]
