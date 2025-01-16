@@ -8,7 +8,7 @@ import json
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 from app import models, schemas, database, utils
-from typing import Optional, List
+from typing import Optional, List, Union
 from datetime import datetime
 
 app = FastAPI()
@@ -157,7 +157,7 @@ async def receive_webhook(
 def get_history(
     request: Request,
     page: int = 1,
-    http_status: Optional[int] = Query(None, description="Filtrer par statut HTTP"),
+    http_status: Optional[str] = Query(None, description="Filtrer par statut HTTP"),
     start_date: Optional[str] = Query(None, description="Date de début au format YYYY-MM-DD"),
     end_date: Optional[str] = Query(None, description="Date de fin au format YYYY-MM-DD"),
     db: Session = Depends(get_db)
@@ -168,19 +168,25 @@ def get_history(
 
     # Appliquer les filtres si fournis
     if http_status:
-        query = query.filter(models.WebhookRequest.http_status == http_status)
+        try:
+            http_status_int = int(http_status)
+            query = query.filter(models.WebhookRequest.http_status == http_status_int)
+        except ValueError:
+            raise HTTPException(status_code=400, detail="Statut HTTP invalide")
+
     if start_date:
         try:
             start_datetime = datetime.strptime(start_date, '%Y-%m-%d')
             query = query.filter(models.WebhookRequest.timestamp >= start_datetime)
         except ValueError:
-            pass  # Ignorer le filtre si la date est invalide
+            raise HTTPException(status_code=400, detail="Format de date de début invalide")
+
     if end_date:
         try:
             end_datetime = datetime.strptime(end_date, '%Y-%m-%d')
             query = query.filter(models.WebhookRequest.timestamp <= end_datetime)
         except ValueError:
-            pass  # Ignorer le filtre si la date est invalide
+            raise HTTPException(status_code=400, detail="Format de date de fin invalide")
 
     total = query.count()
     total_pages = (total + per_page - 1) // per_page
@@ -205,7 +211,7 @@ def get_history(
         "requests": webhook_requests,
         "page": page,
         "total_pages": total_pages,
-        "http_status": http_status,
+        "http_status": int(http_status) if http_status and http_status.isdigit() else None,
         "start_date": start_date if start_date else "",
         "end_date": end_date if end_date else "",
         "days": days,
@@ -216,7 +222,7 @@ def get_history(
 def get_request_detail(request: Request, request_id: int, db: Session = Depends(get_db)):
     webhook_request = db.query(models.WebhookRequest).filter(models.WebhookRequest.id == request_id).first()
     if not webhook_request:
-        raise HTTPException(status_code=404, detail="Requête webhook non trouvée")
+        raise HTTPException(status_code=404, detail="Requête introuvable")
     
     try:
         payload = json.loads(webhook_request.payload)
