@@ -6,6 +6,7 @@ import hmac
 import hashlib
 import json
 from sqlalchemy.orm import Session
+from sqlalchemy import func
 from app import models, schemas, database, utils
 from typing import Optional, List
 from datetime import datetime
@@ -189,6 +190,15 @@ def get_history(
         .limit(per_page)\
         .all()
 
+    # Recueillir les données pour le graphique
+    sales_data = db.query(
+        func.date_trunc('day', models.WebhookRequest.timestamp).label('day'),
+        func.count(models.WebhookRequest.id).label('ticket_count')
+    ).group_by('day').order_by('day').all()
+
+    days = [day.strftime('%Y-%m-%d') for day, count in sales_data]
+    counts = [count for day, count in sales_data]
+
     return templates.TemplateResponse("history.html", {
         "request": request, 
         "requests": webhook_requests,
@@ -196,7 +206,9 @@ def get_history(
         "total_pages": total_pages,
         "http_status": http_status,
         "start_date": start_date if start_date else "",
-        "end_date": end_date if end_date else ""
+        "end_date": end_date if end_date else "",
+        "days": days,
+        "counts": counts
     })
 
 @app.get("/history/{request_id}", response_class=HTMLResponse)
