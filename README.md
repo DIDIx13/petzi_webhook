@@ -349,6 +349,14 @@ Alternatively, you can manually build and run the Docker containers:
 docker-compose up --build
 ```
 
+## Seed
+
+If you wanna seed the database with mock data you can use this command :
+
+```bash
+cat seed_data.sql | docker exec -i petzi_postgres psql -U postgres -d petzi_webhook
+```
+
 ## **Security Considerations**
 
 - **Secret Management**: Secrets are managed using environment variables and GitHub Secrets.
