@@ -35,14 +35,15 @@ This application simulates and handles Petzi webhooks. It verifies the authentic
     ```dotenv
     # .env
 
-    # Flask Secret Key
-    SECRET_KEY=your_secret_key_here
+    # Database URL
+    DATABASE_URL=postgresql://postgres:postgres@db:5432/petzi_webhook
 
     # Petzi Secret
-    PETZI_SECRET=your_complete_petzi_secret_here
+    PETZI_SECRET=AEeyJhbGciOiJIUzUxMiIsImlzcyI6
+
     ```
 
-    > **Note:** Replace `your_secret_key_here` and `your_complete_petzi_secret_here` with your actual secrets.
+    > **Note:** Replace the examples with your actual secrets.
 
 3. **Build and Run with Docker Compose:**
 
@@ -50,29 +51,17 @@ This application simulates and handles Petzi webhooks. It verifies the authentic
     docker-compose up --build
     ```
 
-4. **Apply Database Migrations:**
-
-    In a new terminal:
-
-    ```bash
-    docker-compose exec web flask db migrate -m "Initial migration."
-    docker-compose exec web flask db upgrade
-    ```
-
 5. **Access the Application:**
 
-    Open [http://localhost:5000](http://localhost:5000) in your browser.
+    Open [http://localhost:8000](http://localhost:8000) in your browser.
 
 ## **Usage**
 
-### **1. Simulate Sending a Webhook:**
+### **1. Check the history**
 
 - **Using the Web Interface:**
   
-  1. Navigate to [http://localhost:5000](http://localhost:5000).
-  2. Enter the target webhook URL (e.g., [Webhook.site](https://webhook.site/)).
-  3. Optionally enter a secret or use the default provided.
-  4. Click **"Send Webhook"** to dispatch a simulated webhook.
+  1. Navigate to [http://localhost:8000/history](http://localhost:8000/history).
 
 ### **2. Handle Incoming Webhooks:**
 
@@ -80,11 +69,7 @@ This application simulates and handles Petzi webhooks. It verifies the authentic
 - The application verifies the authenticity of the request using HMAC signatures.
 - Upon successful verification, it extracts the data and persists it to the PostgreSQL database.
 
-## **Testing**
-
-You can test the webhook handling functionality using either the built-in simulator or `curl`. Below are detailed instructions for both methods.
-
-### **1. Testing with the Webhook Simulator**
+### **3. Testing with the Webhook Simulator**
 
 The application provides a built-in simulator (`petzi_simulator.py`) to send test webhooks.
 
@@ -92,7 +77,7 @@ The application provides a built-in simulator (`petzi_simulator.py`) to send tes
 
 1. **Ensure Your Services Are Running:**
 
-    Make sure that both the `web` and `db` services are up and running.
+    Make sure that both the `app` and `db` services are up and running.
 
     ```bash
     docker-compose ps
@@ -101,10 +86,9 @@ The application provides a built-in simulator (`petzi_simulator.py`) to send tes
     **Expected Output:**
 
     ```
-    Name                     Command               State           Ports         
-    ------------------------------------------------------------------------
-    petzi_webhook-db-1       docker-entrypoint.sh   Up      0.0.0.0:5432->5432/tcp
-    petzi_webhook-web-1      flask run --host=0.... Up      0.0.0.0:5000->5000/tcp
+    NAME                IMAGE               COMMAND                  SERVICE   CREATED         STATUS         PORTS
+    petzi_postgres      postgres:17         "docker-entrypoint.s…"   db        3 minutes ago   Up 3 minutes   0.0.0.0:5432->5432/tcp
+    petzi_webhook_app   petzi_webhook-app   "uvicorn app.main:ap…"   app       3 minutes ago   Up 3 minutes   0.0.0.0:8000->8000/tcp
     ```
 
 2. **Send a Webhook Using the Simulator:**
@@ -112,7 +96,7 @@ The application provides a built-in simulator (`petzi_simulator.py`) to send tes
     Open a new terminal window and navigate to the project directory.
 
     ```bash
-    python petzi_simulator.py http://localhost:5000/webhook your_complete_petzi_secret_here
+    python app/petzi_simulator.py http://localhost:8000/webhook your_complete_petzi_secret_here
     ```
 
     > **Note:** Replace `your_complete_petzi_secret_here` with the `PETZI_SECRET` you defined in your `.env` file.
@@ -134,32 +118,36 @@ The application provides a built-in simulator (`petzi_simulator.py`) to send tes
     In the `psql` prompt, run:
 
     ```sql
-    SELECT * FROM ticket;
+    SELECT * FROM tickets;
     ```
 
     **Expected Output:**
 
-    ```
-     id |      number      |      type      |      title      |   category   | event_id |      event      | cancellation_reason |       generated_at       |    promoter     | price_amount | price_currency | buyer_role | buyer_first_name | buyer_last_name | buyer_postcode 
-    ----+------------------+----------------+------------------+--------------+----------+-----------------+---------------------+--------------------------+------------------+--------------+----------------+------------+-------------------+------------------+-----------------
-      1 | ABCD1234EFGH     | online_presale | Test To Delete   | Prélocation  |    54694 | Test To Delete  |                     | 2024-09-04 10:21:21+00   | Case à Chocs     |         25.00 | CHF            | customer   | Jane              | Doe              | 1234
+    ```psql
+    id |    number    |      type      |     title      |  category   | event_id |     event      | cancellation_reason |        generated_at        |   promoter   | price_amount | price_currency | buyer_role | buyer_first_name | buyer_last_name | buyer_postcode 
+    ----+--------------+----------------+----------------+-------------+----------+----------------+---------------------+----------------------------+--------------+--------------+----------------+------------+------------------+-----------------+----------------
+    1 | fSAuG9NYNdeK | online_presale | Test To Delete | Prélocation |    54694 | Test To Delete |                     | 2024-09-04 10:21:21.925529 | Case à Chocs |           25 | CHF            | customer   | Jane             | Doe             | 1234
     (1 row)
     ```
 
 4. **Monitor Logs for Confirmation:**
 
-    You can also monitor the `web` service logs to see detailed processing information.
+    You can also monitor the `app` service logs to see detailed processing information.
 
     ```bash
-    docker-compose logs web
+    docker-compose logs app
     ```
 
     **Look for Entries Similar to:**
 
     ```
-    INFO:__main__:Received webhook request
-    INFO:__main__:Webhook data: {'event': 'ticket_created', ...}
-    INFO:__main__:Ticket ABCD1234EFGH saved to database
+    petzi_webhook_app  | INFO:     Started server process [1]
+    petzi_webhook_app  | INFO:     Waiting for application startup.
+    petzi_webhook_app  | INFO:     Application startup complete.
+    petzi_webhook_app  | INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+    petzi_webhook_app  | INFO:     172.18.0.1:43688 - "POST /webhook HTTP/1.1" 200 OK
+    petzi_webhook_app  | INFO:     172.18.0.1:43702 - "GET /history HTTP/1.1" 200 OK
+    petzi_webhook_app  | INFO:     172.18.0.1:54148 - "POST /webhook HTTP/1.1" 200 OK
     ```
 
 ### **2. Testing with `curl`**
@@ -317,7 +305,7 @@ If you prefer using `curl` to send webhooks, follow the steps below. Note that y
     In the `psql` prompt, run:
 
     ```sql
-    SELECT * FROM ticket;
+    SELECT * FROM tickets;
     ```
 
     **Expected Output:**
@@ -331,10 +319,10 @@ If you prefer using `curl` to send webhooks, follow the steps below. Note that y
 
 4. **Monitor Logs for Confirmation:**
 
-    You can also monitor the `web` service logs to see detailed processing information.
+    You can also monitor the `app` service logs to see detailed processing information.
 
     ```bash
-    docker-compose logs web
+    docker-compose logs app
     ```
 
     **Look for Entries Similar to:**
