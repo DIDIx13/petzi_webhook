@@ -37,7 +37,7 @@
             <canvas id="salesChart" width="400" height="200"></canvas>
         </div>
 
-        <!-- Formulaire de Filtrage -->
+        <!-- Formulaire de filtrage -->
         <div class="mb-4">
             <form class="row g-3" method="get" action="/history">
                 <div class="col-md-3">
@@ -47,7 +47,6 @@
                         <option value="200" {% if http_status == 200 %}selected{% endif %}>200 OK</option>
                         <option value="400" {% if http_status == 400 %}selected{% endif %}>400 Erreur</option>
                         <option value="500" {% if http_status == 500 %}selected{% endif %}>500 Serveur</option>
-                        <!-- Ajouter d'autres statuts si nécessaire -->
                     </select>
                 </div>
                 <div class="col-md-3">
